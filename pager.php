@@ -1,31 +1,42 @@
 <?php
-
+include "pager_config.php";
 
 class Paginator {
-   
+
+   var $currentPage;
+   var $currentItem;
    var $pageNumber;
    var $pcsPerPage;
    var $sorter;
    var $ascending;
    var $itemNumber;
       
-
-   public function set_parameters($pageNumber, $sorter, $ascending=true, $pcsPerPage=10, $shownPages=3)
+   public function set_parameters($currentPage=CURRENTPAGE, $sorter=SORTER, $ascending=ASCENDING, $pcsPerPage=PCSPERPAGE, $shownPages=SHOWNPAGES)
    {
-     if ((is_numeric($pageNumber))&&(($pageNumber>=0))){
-   $this->pageNumber=$pageNumber;
+     if ((is_numeric($currentPage))&&(($currentPage>=1))){
+   $this->currentPage=$currentPage;
    }
    else
    {
-   $this->error("Неверно указана текущая страница");
+   $this->error("Invalid current page number");
    return;
    }
+   
+      if ((is_numeric($shownPages))&&(($shownPages>=1))){
+   $this->shownPages=$shownPages;
+   }
+   else
+   {
+   $this->error("Invalid shown page number");
+   return;
+   }
+   
      if (is_numeric($pcsPerPage)){
    $this->pcsPerPage=$pcsPerPage;
    }
    else
    {
-   $this->error("Неверно указано количество обьектов на странице");
+   $this->error("Invalid items per page number");
    return;
    }
      $this->sorter=$sorter;
@@ -38,7 +49,8 @@ class Paginator {
    $this->error("Неверно указан порядок сортировки");
    return;
    }
-   $this->core();
+   $a=$this->core();
+   return ($a);
    }
    
   
@@ -49,20 +61,22 @@ class Paginator {
    {}
    
    private function error($text)
-   {return ($text);}
+   {echo ($text);
+	   exit;}
    
    private function core()
    {
-   $this->get_itemNumber();
+   $this->get_currentItem();
    $this->connect();
    $this->get_content();
-   $this->get_pages();
+   $a=$this->get_pages();
    $this->get_result();
+   return $a;
    }
    
-   private function get_itemNumber()
+   private function get_currentItem()
    {
-   $this->itemNumber=($this->pageNumber+1)*($this->pcsPerPage);
+   $this->currentItem=($this->currentPage-1)*($this->pcsPerPage);
    }
    
    private function connect()
@@ -72,12 +86,48 @@ class Paginator {
    {}
    
    private function get_pages()
-   {}
+   {
+	$a=array();  
+	
+	if ($this->currentPage<=($this->shownPages+1)){
+		for ($i=1;$i<$this->currentPage;$i++){
+			$a[]=$i;   
+		}
+		}else{
+			$a[]=1;
+			$a[]="...";
+		for ($i=($this->currentPage-$this->shownPages);$i<$this->currentPage;$i++){
+			$a[]=$i;   
+		}
+	}
+	$a[]="<b>".$this->currentPage."</b>";
+	
+	if (($this->currentPage+$this->shownPages)>=$this->pageNumber){
+		for ($i=$this->currentPage+1; $i<=$this->pageNumber; $i++){
+			$a[]=$i;
+		}
+	}else{
+		for ($i=$this->currentPage+1; $i<=($this->currentPage+$this->shownPages); $i++){
+			$a[]=$i;
+		}
+		$a[]="...";
+		$a[]=$this->pageNumber;
+	}
+	return $a;
+	}
+	
+		
+		
    
    private function get_content()
-   {}
+   {$this->pageNumber=20;
+	  if ($this->currentPage>$this->pageNumber){
+		  $this->error("invalid current page number");}
+	}
 }
 
 $a = new Paginator();
-$a->set_parameters(1,"se");
-echo "b";
+$b=$a->set_parameters();
+for ($i=0;$i<count($b);$i++){
+echo $b[$i]."|";
+}

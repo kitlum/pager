@@ -1,5 +1,6 @@
 <?php
 include "pager_config.php";
+include "db_config.php";
 
 class Paginator {
 
@@ -76,11 +77,14 @@ class Paginator {
    
    private function get_currentItem()
    {
-   $this->currentItem=($this->currentPage-1)*($this->pcsPerPage);
+   $this->currentItem=($this->currentPage-1)*($this->pcsPerPage)+1;
    }
    
    private function connect()
-   {}
+   {
+	$this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	$this->mysqli->query("SET NAMES utf8");
+	}
    
    private function get_result()
    {}
@@ -120,8 +124,22 @@ class Paginator {
 		
    
    private function get_content()
-   {$this->pageNumber=20;
-	  if ($this->currentPage>$this->pageNumber){
+   {
+	  $content=array();
+	  $query="SELECT COUNT(*) FROM `pager` WHERE 1";
+	  $result=$this->mysqli->query($query);
+	  $a=$result->fetch_row();
+	  $itemNumber=$a[0]; 
+	  $result->free();
+	  $query="SELECT * FROM `pager` WHERE 1 ORDER BY `".$this->sorter."` LIMIT ".$this->currentItem.",".$this->pcsPerPage;
+	  $result=$this->mysqli->query($query);  
+	  $this->pageNumber=$itemNumber/$this->pcsPerPage;
+	  while ($a=$result->fetch_assoc()){
+		  $content[]=$a;
+	  }
+	  $result->free();
+	  $this->mysqli->close();
+	    if ($this->currentPage>$this->pageNumber){
 		  $this->error("invalid current page number");}
 	}
 }

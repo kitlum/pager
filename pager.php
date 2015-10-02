@@ -68,11 +68,10 @@ class Paginator {
    private function core()
    {
    $this->get_currentItem();
-   $this->connect();
    $this->get_content();
-   $a=$this->get_pages();
+   $this->get_pages();
    $this->get_result();
-   return $a;
+   return $this->result;
    }
    
    private function get_currentItem()
@@ -80,14 +79,12 @@ class Paginator {
    $this->currentItem=($this->currentPage-1)*($this->pcsPerPage)+1;
    }
    
-   private function connect()
-   {
-	$this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-	$this->mysqli->query("SET NAMES utf8");
-	}
    
    private function get_result()
-   {}
+   {$this->result=array();
+	$this->result['content']=$this->content;
+	$this->result['pager']=$this->pager;
+	   }
    
    private function get_pages()
    {
@@ -117,7 +114,8 @@ class Paginator {
 		$a[]="...";
 		$a[]=$this->pageNumber;
 	}
-	return $a;
+	$this->pager=$a;
+	return;
 	}
 	
 		
@@ -125,6 +123,8 @@ class Paginator {
    
    private function get_content()
    {
+	  $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	  $this->mysqli->query("SET NAMES utf8");
 	  $content=array();
 	  $query="SELECT COUNT(*) FROM `pager` WHERE 1";
 	  $result=$this->mysqli->query($query);
@@ -135,17 +135,44 @@ class Paginator {
 	  $result=$this->mysqli->query($query);  
 	  $this->pageNumber=$itemNumber/$this->pcsPerPage;
 	  while ($a=$result->fetch_assoc()){
-		  $content[]=$a;
+		  $rawcontent[]=$a;
 	  }
 	  $result->free();
 	  $this->mysqli->close();
 	    if ($this->currentPage>$this->pageNumber){
 		  $this->error("invalid current page number");}
+		if (defined("SHOWNFIELDS")){
+			$b=explode(",",SHOWNFIELDS);
+			foreach ($b as $value){
+				foreach ($rawcontent as $key->$value1){
+					if ($value==$key){
+						$this->content[$key]=$value;
+						}
+					}
+			}
+		}else if (defined("UNSHOWNFIELDS")){
+			$b=explode(",",SHOWNFIELDS);
+			foreach ($b as $value){
+				foreach ($rawcontent as $key->$value1){
+					if ($value==$key){
+						$this->content[$key]=$value;
+						}
+					}
+			}
+		}else{
+			$this->content=$rawcontent;
+		}
+		return;
+				  
 	}
 }
 
+
 $a = new Paginator();
 $b=$a->set_parameters();
-for ($i=0;$i<count($b);$i++){
-echo $b[$i]."|";
+$c=$b['pager'];
+$d=$b['content'];
+
+for ($i=0;$i<count($c);$i++){
+echo $c[$i]."|";
 }

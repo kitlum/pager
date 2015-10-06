@@ -6,3 +6,4 @@ if ($a['action']=='find_data'){
 	$b->getData($a);
 }
 $output=json_encode($b);
+return ($output)

@@ -1,6 +1,5 @@
 <?php
-include "pager_config.php";
-include "db_config.php";
+
 class Paginator {
    var $currentPage;
    var $currentItem;
@@ -10,7 +9,7 @@ class Paginator {
    var $ascending;
    var $itemNumber;
       
-   public function set_parameters($tableName=TABLENAME, $selectors={}, $currentPage=CURRENTPAGE, $sorter=SORTER, $ascending=ASCENDING, $pcsPerPage=PCSPERPAGE, $shownPages=SHOWNPAGES)
+   public function set_parameters($tableName, $currentPage, $sorter, $ascending, $pcsPerPage, $shownPages, $selectors={})
    {
      $this->selectors=$selectors;
 	 $this->currentPage=$currentPage;
@@ -18,45 +17,6 @@ class Paginator {
 	 $this->ascending=$ascending;
 	 $this->pcsPerPage=$pcsPerPage;
 	 $this->shownPage=$shownPage;
-	 /*if ((is_numeric($currentPage))&&(($currentPage>=1))){					Проверку вынесем отдельно
-   $this->currentPage=$currentPage;
-   }
-   else
-   {
-   $this->error("Invalid current page number");
-   return;
-   }
-   
-      if ((is_numeric($shownPages))&&(($shownPages>=1))){
-   $this->shownPages=$shownPages;
-   }
-   else
-   {
-   $this->error("Invalid shown page number");
-   return;
-   }
-   
-     if (is_numeric($pcsPerPage)){
-   $this->pcsPerPage=$pcsPerPage;
-   }
-   else
-   {
-   $this->error("Invalid items per page number");
-   return;
-   }
-     $this->sorter=$sorter;
-   
-   if (is_bool($ascending)){
-   $this->ascending=$ascending;
-   }
-   else
-   {
-   $this->error("Invalid sorting method");
-   return;
-   }
-   $a=$this->core();
-   return ($a);*/
-   
 }
    
   
